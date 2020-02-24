@@ -7,7 +7,7 @@ from pysc2.maps import lib
 
 class SMACMap(lib.Map):
     directory = "SMAC_Maps"
-    download = "https://github.com/oxwhirl/smac#smac-maps"
+    download = "https://github.com/piggygenius/smac#smac-maps"
     players = 2
     step_mul = 8
     game_steps_per_episode = 0
@@ -221,6 +221,123 @@ map_param_registry = {
         "unit_type_bits": 0,
         "map_type": "colossus",
     },
+    "micro_2M_Z": {
+        "n_agents": 2,
+        "n_enemies": 1,
+        "limit": 150,
+        "a_race": "T",
+        "b_race": "P",
+        "unit_type_bits": 0,
+        "map_type": 'marines'
+    },
+    "2_corridors": {
+        "n_agents": 2,
+        "n_enemies": 1,
+        "limit": 200,
+        "a_race": "T",
+        "b_race": "P",
+        "unit_type_bits": 0,
+        "map_type": 'marines'
+    },
+    "micro_corridor": {
+        "n_agents": 6,
+        "n_enemies": 24,
+        "limit": 400,
+        "a_race": "P",
+        "b_race": "Z",
+        "unit_type_bits": 0,
+        "map_type": 'zealots'
+    },
+    "micro_focus": {
+        "n_agents": 6,
+        "n_enemies": 8,
+        "limit": 150,
+        "a_race": "Z",
+        "b_race": "P",
+        "unit_type_bits": 0,
+        "map_type": 'focus_fire'
+    },
+    "micro_retarget": {
+        "n_agents": 2,
+        "n_enemies": 1,
+        "limit": 300,
+        "a_race": "P",
+        "b_race": "Z",
+        "unit_type_bits": 0,
+        "map_type": 'retarget'
+    },
+    "micro_baneling": {
+        "n_agents": 7,
+        "n_enemies": 32,
+        "limit": 100,
+        "a_race": "P",
+        "b_race": "Z",
+        "unit_type_bits": 0,
+        "map_type": 'zealots'
+    },
+    "micro_bane": {
+        "n_agents": 24,
+        "n_enemies": 24,
+        "limit": 200,
+        "a_race": "Z",
+        "b_race": "Z",
+        "unit_type_bits": 2,
+        "map_type": 'ze_ba'
+    },
+    "micro_colossus": {
+        "n_agents": 2,
+        "n_enemies": 64,
+        "limit": 400,
+        "a_race": "P",
+        "b_race": "Z",
+        "unit_type_bits": 0,
+        "map_type": 'colossus'
+    },
+    "bunker_vs_4m": {
+        "n_agents": 2,
+        "n_enemies": 4,
+        "limit": 100,
+        "a_race": "T",
+        "b_race": "T",
+        "unit_type_bits": 0,
+        "map_type": 'bunker'
+    },
+    "bunker_vs_5m": {
+        "n_agents": 2,
+        "n_enemies": 5,
+        "limit": 100,
+        "a_race": "T",
+        "b_race": "T",
+        "unit_type_bits": 0,
+        "map_type": 'bunker'
+    },
+    "bunker_vs_6m": {
+        "n_agents": 2,
+        "n_enemies": 6,
+        "limit": 100,
+        "a_race": "T",
+        "b_race": "T",
+        "unit_type_bits": 0,
+        "map_type": 'bunker'
+    },
+    "bunker3_vs_8m": {
+        "n_agents": 3,
+        "n_enemies": 8,
+        "limit": 120,
+        "a_race": "T",
+        "b_race": "T",
+        "unit_type_bits": 0,
+        "map_type": 'bunker'
+    },
+    "bunker3_vs_7m": {
+        "n_agents": 3,
+        "n_enemies": 7,
+        "limit": 120,
+        "a_race": "T",
+        "b_race": "T",
+        "unit_type_bits": 0,
+        "map_type": 'bunker'
+    }
 }
 
 
