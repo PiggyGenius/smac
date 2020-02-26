@@ -1,7 +1,7 @@
+from therlib.tools.tools import convert
 from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params, map_present
 
-from utils.dict2namedtuple import convert
 from operator import attrgetter
 from copy import deepcopy
 from absl import flags
