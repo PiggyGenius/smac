@@ -65,7 +65,7 @@ bunker_id = 24
 StarCraft II
 '''
 
-class Starcraft2Env(MultiAgentEnv):
+class StarCraft2Env(MultiAgentEnv):
 
     def __init__(self, **kwargs):
 
