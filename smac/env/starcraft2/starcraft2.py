@@ -67,9 +67,8 @@ StarCraft II
 
 class StarCraft2Env(MultiAgentEnv):
 
-    def __init__(self, **kwargs):
+    def __init__(self, args):
 
-        args = kwargs["env_args"]
         if isinstance(args, dict):
             args = convert(args)
         # Read arguments
@@ -142,17 +141,27 @@ class StarCraft2Env(MultiAgentEnv):
         # Launch the game
         self._launch()
 
-        self.max_reward = self.n_enemies * self.reward_death_value + self.reward_win
+        self.max_reward = (
+            self.n_enemies * self.reward_death_value + self.reward_win
+        )
         self._game_info = self.controller.game_info()
         self._map_info = self._game_info.start_raw
         self.map_x = self._map_info.map_size.x
         self.map_y = self._map_info.map_size.y
         self.map_play_area_min = self._map_info.playable_area.p0
         self.map_play_area_max = self._map_info.playable_area.p1
-        self.max_distance_x = self.map_play_area_max.x - self.map_play_area_min.x
-        self.max_distance_y = self.map_play_area_max.y - self.map_play_area_min.y
-        self.terrain_height = np.flip(np.transpose(np.array(list(self._map_info.terrain_height.data)).reshape(self.map_x, self.map_y)), 1)
-        self.pathing_grid = np.flip(np.transpose(np.array(list(self._map_info.pathing_grid.data)).reshape(self.map_x, self.map_y)), 1)
+        self.max_distance_x = (
+            self.map_play_area_max.x - self.map_play_area_min.x
+        )
+        self.max_distance_y = (
+            self.map_play_area_max.y - self.map_play_area_min.y
+        )
+        self.terrain_height = np.flip(np.transpose(np.array(list(
+            self._map_info.terrain_height.data)).reshape(self.map_x, self.map_y)
+        ), 1)
+        self.pathing_grid = np.flip(np.transpose(np.array(list(
+            self._map_info.pathing_grid.data
+        )).reshape(self.map_x, self.map_y)), 1)
         if self.map_name == '2_corridors':
             self.pathing_grid_orig = deepcopy(self.pathing_grid)
             self.corridor = 0
