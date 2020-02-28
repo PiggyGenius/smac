@@ -5,6 +5,7 @@ from __future__ import print_function
 from smac.env.starcraft2.maps import smac_maps
 
 def map_present(map_name):
+    map_param_registry = smac_maps.get_smac_map_registry()
     return map_name in map_param_registry
 
 def get_map_params(map_name):

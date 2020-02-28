@@ -132,11 +132,13 @@ class StarCraft2Env(MultiAgentEnv):
             self.bunker_open = 0
         self.n_actions = self.n_actions_no_attack + self.n_enemies
 
-        if sys.platform == 'linux':
-            os.environ['SC2PATH'] = os.path.join(os.getcwd(), "3rdparty", 'StarCraftII')
-            self.game_version = args.game_version
-        else:
-            self.game_version = "4.6.2"
+        # if sys.platform == 'linux':
+            # os.environ['SC2PATH'] = os.path.join(os.getcwd(), "3rdparty", 'StarCraftII')
+            # # self.game_version = args.game_version
+            # self.game_version = "4.6.2"
+        # else:
+            # self.game_version = "4.6.2"
+        self.game_version = None
 
         # Launch the game
         self._launch()
@@ -159,9 +161,21 @@ class StarCraft2Env(MultiAgentEnv):
         self.terrain_height = np.flip(np.transpose(np.array(list(
             self._map_info.terrain_height.data)).reshape(self.map_x, self.map_y)
         ), 1)
-        self.pathing_grid = np.flip(np.transpose(np.array(list(
-            self._map_info.pathing_grid.data
-        )).reshape(self.map_x, self.map_y)), 1)
+        if map_info.pathing_grid.bits_per_pixel == 1:
+            vals = np.array(list(self._map_info.pathing_grid.data)).reshape(
+                self.map_x, int(self.map_y / 8)
+            )
+            self.pathing_grid = np.transpose(np.array([
+                [(b >> i) & 1 for b in row for i in range(7, -1, -1)]
+                for row in vals
+            ], dtype=np.bool))
+        else:
+            self.pathing_grid = np.invert(np.flip(np.transpose(np.array(
+                list(self._map_info.pathing_grid.data), dtype=np.bool
+            ).reshape(self.map_x, self.map_y)), axis=1))
+        # self.pathing_grid = np.flip(np.transpose(np.array(list(
+            # self._map_info.pathing_grid.data
+        # )).reshape(self.map_x, self.map_y)), 1)
         if self.map_name == '2_corridors':
             self.pathing_grid_orig = deepcopy(self.pathing_grid)
             self.corridor = 0
@@ -205,7 +219,8 @@ class StarCraft2Env(MultiAgentEnv):
 
     def _launch(self):
 
-        self._run_config = run_configs.get()
+        # self._run_config = run_configs.get()
+        self._run_config = run_configs.get(version=self.game_version)
         self._map = maps.get(self.map_name)
 
         # Setting up the interface
@@ -213,7 +228,8 @@ class StarCraft2Env(MultiAgentEnv):
                 raw = True, # raw, feature-level data
                 score = True)
 
-        self._sc2_proc = self._run_config.start(version=self.game_version, window_size=self.window_size)
+        # self._sc2_proc = self._run_config.start(version=self.game_version, window_size=self.window_size)
+        self._sc2_proc = self._run_config.start(window_size=self.window_size)
         self.controller = self._sc2_proc.controller
 
         # Create the game.
