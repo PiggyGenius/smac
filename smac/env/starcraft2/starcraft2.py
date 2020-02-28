@@ -161,7 +161,7 @@ class StarCraft2Env(MultiAgentEnv):
         self.terrain_height = np.flip(np.transpose(np.array(list(
             self._map_info.terrain_height.data)).reshape(self.map_x, self.map_y)
         ), 1)
-        if map_info.pathing_grid.bits_per_pixel == 1:
+        if self._map_info.pathing_grid.bits_per_pixel == 1:
             vals = np.array(list(self._map_info.pathing_grid.data)).reshape(
                 self.map_x, int(self.map_y / 8)
             )
