@@ -229,8 +229,6 @@ class StarCraft2Env(MultiAgentEnv):
         self._sc2_proc = self._run_config.start(window_size=self.window_size)
         self.controller = self._sc2_proc.controller
         # Create the game.
-        print(self._map_path)
-        raise ValueError
         create = sc_pb.RequestCreateGame(
             realtime = False, random_seed = self.seed,
             local_map=sc_pb.LocalMap(
