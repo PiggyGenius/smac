@@ -218,30 +218,35 @@ class StarCraft2Env(MultiAgentEnv):
             self.zergling_id = min_unit_type + 1
 
     def _launch(self):
-
         # self._run_config = run_configs.get()
         self._run_config = run_configs.get(version=self.game_version)
         self._map = maps.get(self.map_name)
-
-        # Setting up the interface
-        self.interface = sc_pb.InterfaceOptions(
-                raw = True, # raw, feature-level data
-                score = True)
-
-        # self._sc2_proc = self._run_config.start(version=self.game_version, window_size=self.window_size)
+        # Setting up the interface: raw --> feature-level data
+        self.interface = sc_pb.InterfaceOptions(raw = True, score = True)
+        # self._sc2_proc = self._run_config.start(
+            # version=self.game_version, window_size=self.window_size
+        # )
         self._sc2_proc = self._run_config.start(window_size=self.window_size)
         self.controller = self._sc2_proc.controller
-
         # Create the game.
-        create = sc_pb.RequestCreateGame(realtime = False,
-                random_seed = self.seed,
-                local_map=sc_pb.LocalMap(map_path=self._map.path, map_data=self._run_config.map_data(self._map.path)))
+        print(self._map_path)
+        raise ValueError
+        create = sc_pb.RequestCreateGame(
+            realtime = False, random_seed = self.seed,
+            local_map=sc_pb.LocalMap(
+                map_path=self._map.path,
+                map_data=self._run_config.map_data(self._map.path)
+            )
+        )
         create.player_setup.add(type=sc_pb.Participant)
-        create.player_setup.add(type=sc_pb.Computer, race=races[self._bot_race],
-                                difficulty=difficulties[self.difficulty])
+        create.player_setup.add(
+            type=sc_pb.Computer, race=races[self._bot_race],
+            difficulty=difficulties[self.difficulty]
+        )
         self.controller.create_game(create)
-
-        join = sc_pb.RequestJoinGame(race=races[self._agent_race], options=self.interface)
+        join = sc_pb.RequestJoinGame(
+            race=races[self._agent_race], options=self.interface
+        )
         self.controller.join_game(join)
 
     def save_replay(self):
