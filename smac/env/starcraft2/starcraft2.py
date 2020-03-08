@@ -5,9 +5,6 @@ import numpy as np
 from absl import logging
 from copy import deepcopy
 from operator import attrgetter
-from __future__ import division
-from __future__ import absolute_import
-from __future__ import print_function
 from pysc2 import maps
 from pysc2 import run_configs
 from pysc2.lib import protocol
