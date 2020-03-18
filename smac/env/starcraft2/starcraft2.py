@@ -39,6 +39,9 @@ actions = {
     "attack": 23,  # target: PointOrUnit
     "stop": 4,  # target: None
     "heal": 386,  # Unit
+    'enter_buker': 407,
+    'attack_bunker': 1682,
+    'bunker': 24
 }
 
 
@@ -194,7 +197,6 @@ class StarCraft2Env(MultiAgentEnv):
         self._move_amount = move_amount
         self._step_mul = step_mul
         self.difficulty = difficulty
-
         # Observations and state
         self.obs_own_health = obs_own_health
         self.obs_all_health = obs_all_health
@@ -209,7 +211,6 @@ class StarCraft2Env(MultiAgentEnv):
             self.obs_own_health = True
         self.n_obs_pathing = 8
         self.n_obs_height = 9
-
         # Rewards args
         self.reward_sparse = reward_sparse
         self.reward_only_positive = reward_only_positive
@@ -219,7 +220,6 @@ class StarCraft2Env(MultiAgentEnv):
         self.reward_defeat = reward_defeat
         self.reward_scale = reward_scale
         self.reward_scale_rate = reward_scale_rate
-
         # Other
         self.game_version = game_version
         self.continuing_episode = continuing_episode
@@ -230,12 +230,10 @@ class StarCraft2Env(MultiAgentEnv):
         self.window_size = (window_size_x, window_size_y)
         self.replay_dir = replay_dir
         self.replay_prefix = replay_prefix
-
         # Actions
         self.n_actions_no_attack = 6
         self.n_actions_move = 4
         self.n_actions = self.n_actions_no_attack + self.n_enemies
-
         # Map info
         self._agent_race = map_params["a_race"]
         self._bot_race = map_params["b_race"]
@@ -243,11 +241,9 @@ class StarCraft2Env(MultiAgentEnv):
         self.shield_bits_enemy = 1 if self._bot_race == "P" else 0
         self.unit_type_bits = map_params["unit_type_bits"]
         self.map_type = map_params["map_type"]
-
         self.max_reward = (
             self.n_enemies * self.reward_death_value + self.reward_win
         )
-
         self.agents = {}
         self.enemies = {}
         self._episode_count = 0
@@ -277,7 +273,6 @@ class StarCraft2Env(MultiAgentEnv):
         self._run_config = None
         self._sc2_proc = None
         self._controller = None
-
         # Try to avoid leaking SC2 processes on shutdown
         atexit.register(lambda: self.close())
 
@@ -303,8 +298,9 @@ class StarCraft2Env(MultiAgentEnv):
                                 difficulty=difficulties[self.difficulty])
         self._controller.create_game(create)
 
-        join = sc_pb.RequestJoinGame(race=races[self._agent_race],
-                                     options=interface_options)
+        join = sc_pb.RequestJoinGame(
+            race=races[self._agent_race], options=interface_options
+        )
         self._controller.join_game(join)
 
         game_info = self._controller.game_info()
@@ -315,21 +311,24 @@ class StarCraft2Env(MultiAgentEnv):
         self.max_distance_y = map_play_area_max.y - map_play_area_min.y
         self.map_x = map_info.map_size.x
         self.map_y = map_info.map_size.y
-
         if map_info.pathing_grid.bits_per_pixel == 1:
             vals = np.array(list(map_info.pathing_grid.data)).reshape(
-                self.map_x, int(self.map_y / 8))
+                self.map_x, int(self.map_y / 8)
+            )
             self.pathing_grid = np.transpose(np.array([
                 [(b >> i) & 1 for b in row for i in range(7, -1, -1)]
-                for row in vals], dtype=np.bool))
+                for row in vals
+            ], dtype=np.bool))
         else:
             self.pathing_grid = np.invert(np.flip(np.transpose(np.array(
-                list(map_info.pathing_grid.data), dtype=np.bool).reshape(
-                    self.map_x, self.map_y)), axis=1))
-
-        self.terrain_height = np.flip(
-            np.transpose(np.array(list(map_info.terrain_height.data))
-                .reshape(self.map_x, self.map_y)), 1) / 255
+                list(map_info.pathing_grid.data), dtype=np.bool
+            ).reshape(self.map_x, self.map_y)), axis=1))
+        self.terrain_height = np.flip(np.transpose(np.array(list(
+            map_info.terrain_height.data)).reshape(self.map_x, self.map_y)), 1
+        ) / 255
+        if self.map_name == '2_corridors':
+            self.pathing_grid_orig = deepcopy(self.pathing_grid)
+            self.corridor = 0
 
     def reset(self):
         """Reset the environment. Required after each full episode.
@@ -870,15 +869,15 @@ class StarCraft2Env(MultiAgentEnv):
                 move_feats[m] = avail_actions[m + 2]
 
             ind = self.n_actions_move
-
             if self.obs_pathing_grid:
                 move_feats[
                     ind : ind + self.n_obs_pathing
                 ] = self.get_surrounding_pathing(unit)
                 ind += self.n_obs_pathing
-
             if self.obs_terrain_height:
                 move_feats[ind:] = self.get_surrounding_height(unit)
+            if self.map_name == '2_corridors':
+                move_feats[-1] = self.corridor
 
             # Enemy features
             for e_id, e_unit in self.enemies.items():
@@ -1148,7 +1147,8 @@ class StarCraft2Env(MultiAgentEnv):
             move_feats += self.n_obs_pathing
         if self.obs_terrain_height:
             move_feats += self.n_obs_height
-
+        if self.map_name == '2_corridors':
+            move_feats += 1
         return move_feats
 
     def get_obs_size(self):
@@ -1461,3 +1461,16 @@ class StarCraft2Env(MultiAgentEnv):
             "restarts": self.force_restarts,
         }
         return stats
+
+    def open_corridor(self):
+        if self.map_name != '2_corridors':
+            return
+        self.pathing_grid = deepcopy(self.pathing_grid_orig)
+        self.corridor = 0
+
+    def close_corridor(self):
+        if self.map_name != '2_corridors':
+            return
+        for i in range(14, 20):
+            self.pathing_grid[0:16, i] = [255] * 16
+        self.corridor = 1
