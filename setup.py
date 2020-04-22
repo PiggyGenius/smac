@@ -38,7 +38,6 @@ setup(
         'smac.examples.rllib'
     ],
     install_requires=[
-        'pysc2>=3.0.0',
         's2clientprotocol>=4.10.1.75800.0',
         'absl-py>=0.1.0',
         'numpy>=1.10',
