@@ -1472,5 +1472,5 @@ class StarCraft2Env(MultiAgentEnv):
         if self.map_name != '2_corridors':
             return
         for i in range(14, 20):
-            self.pathing_grid[0:16, i] = [255] * 16
+            self.pathing_grid[0:16, i] = False
         self.corridor = 1
