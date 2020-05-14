@@ -328,6 +328,9 @@ class StarCraft2Env(MultiAgentEnv):
         ) / 255
         if self.map_name == '2_corridors':
             self.pathing_grid_orig = deepcopy(self.pathing_grid)
+        if hasattr(self, 'corridor'):
+            self.close_corridor()
+        else:
             self.corridor = 0
 
     def reset(self):
